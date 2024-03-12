@@ -1,5 +1,16 @@
 import './style.css'
-import {Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshBasicMaterial, Mesh, AxesHelper, Clock} from "three";
+import Stats from "three/examples/jsm/libs/stats.module.js";
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import {
+    Scene,
+    PerspectiveCamera,
+    WebGLRenderer,
+    BoxGeometry,
+    Mesh,
+    AxesHelper,
+    Clock,
+    MeshNormalMaterial
+} from "three";
 
 const WIDTH = document.getElementById("app").clientWidth;
 const HEIGHT = document.getElementById("app").clientHeight;
@@ -7,10 +18,11 @@ const HEIGHT = document.getElementById("app").clientHeight;
 const scene = new Scene();
 
 const geometry = new BoxGeometry(1, 1, 1);
-const material = new MeshBasicMaterial({ color: 0x0000ff });
+const material = new MeshNormalMaterial();
 const cube = new Mesh(geometry, material);
 scene.add(cube);
 
+const stats = new Stats(); // 性能监视器
 const axes = new AxesHelper(10)
 scene.add(axes)
 
@@ -31,13 +43,18 @@ const render = new WebGLRenderer();
 render.setClearColor(0xffffff);
 render.setSize(WIDTH, HEIGHT);
 document.getElementById("app").appendChild(render.domElement);
+document.body.appendChild(stats.dom);
+
+const controller = new OrbitControls(camera, render.domElement) // 轨道控制器
 
 const clock = new Clock();
 function animate() {
     const time = clock.getElapsedTime(); // time的值基本一定，解决高刷屏上动画速度过快的问题
     cube.position.x = 2 * Math.sin(time);
     cube.position.y = 2 * Math.cos(time);
-    cube.rotation.z = time;
+    // cube.rotation.z = time;
+    stats.update();
+    controller.update();
     render.render(scene, camera);
     requestAnimationFrame(animate)
 }
